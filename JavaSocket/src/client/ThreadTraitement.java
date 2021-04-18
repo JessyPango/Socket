@@ -22,10 +22,19 @@ public class ThreadTraitement extends Thread{
 					System.out.println("\nSMS from"+sms.getSource()+": "+  new String(sms.getData()));
 				}
 			} else {
+			} else if( sms.getType().equals("fichier") )
+			{
 				File file = new File("file", sms.getNameFile());
 				try {
 					if( ! file.exists())
-						file.createNewFile();
+						try
+				    	{
+				    		file.createNewFile();
+				    	} catch (IOException e) {
+				    		File dir = new File("file");
+				    		dir.mkdir();
+				    		file.createNewFile();
+				    	}
 					FileOutputStream out = new FileOutputStream(file);
 					out.write(sms.getData());
 					out.close();

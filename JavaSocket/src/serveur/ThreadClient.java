@@ -30,7 +30,7 @@ public class ThreadClient  extends Thread {
 			String nameCli = (String) in.readObject();
 			compte.setNom(nameCli);
 			
-			out.writeObject("\n******** Bienvenue "+ nameCli + "*******\n");
+			out.writeObject("\n******** Bienvenue "+ nameCli + " *********\n Protocole communication:\n\t\t text--> Message Texte\n\t\t fichier--> Image");
  
 			ServeurMulti.comptes.add(compte);
 			
@@ -57,7 +57,7 @@ public class ThreadClient  extends Thread {
 									{
 										ObjectOutputStream outp = cpt.getOut();
 										outp.writeObject(sms);
-										System.out.println("Send to ---> "+ name);
+										System.out.println(sms.getSource()+" Send to ---> "+ name);
 									}
 								}
 								break;
@@ -70,7 +70,7 @@ public class ThreadClient  extends Thread {
 									{
 										ObjectOutputStream outp = cpt.getOut();
 										outp.writeObject(sms);
-										System.out.println("Send to ---> "+ name);
+										System.out.println(sms.getSource()+" Send to ---> "+ name);
 									}
 								}
 						}
