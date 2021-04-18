@@ -1,4 +1,4 @@
-package test1;
+package serveur;
 
 import java.io.IOException;
 import java.util.Scanner;
@@ -12,7 +12,7 @@ public class Controleur {
 		serveur = new ServeurMulti();
 		serveur.start();
 		
-		System.out.println("Le Serveur a demarer....");
+		System.out.println("Le Serveur a demarer.... ");
 		System.out.println("Entrez <<Entrer>> Pour l'arrêter !");
 		
 		Scanner sc = new Scanner(System.in);
@@ -20,7 +20,7 @@ public class Controleur {
 		sc.close();
 		
 		serveur.interrupt(); // interrupted renvoi false
-		System.out.println("\n***Alert :Le Serveur s'arrête quend tous les client se déconnecterons ***");
+		System.out.println("\n***Alert :Le Serveur s'arrête quand tous les clients se déconnecterons ***");
 	}
 
 }
