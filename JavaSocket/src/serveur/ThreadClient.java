@@ -20,21 +20,24 @@ public class ThreadClient  extends Thread {
 
 	public void run()
 	{
+		Compte compte=null;
+		ObjectInputStream in;
+		ObjectOutputStream out;
 		try {
 			
-			Compte compte = new Compte(socketServeur, this);
-			
-			ObjectInputStream in = compte.getIn();
-			ObjectOutputStream out = compte.getOut();
+			compte = new Compte(socketServeur, this);
+			in = compte.getIn();
+			out = compte.getOut();
 			
 			String nameCli = (String) in.readObject();
+			
 			compte.setNom(nameCli);
 			
 			out.writeObject("\n******** Bienvenue "+ nameCli + " *********\n Protocole communication:\n\t\t text--> Message Texte\n\t\t fichier--> Image");
  
 			ServeurMulti.comptes.add(compte);
 			
-			while( true)
+			while( !interrupted() )
 			{			
 				Message sms;
 				try
@@ -88,6 +91,11 @@ public class ThreadClient  extends Thread {
 					e.printStackTrace();
 				}
 			}
+		} catch(EOFException e) {
+			
+			if(compte != null) ServeurMulti.comptes.remove(compte);
+			System.out.println("***** Alert : Client déconnecté ! ");
+			
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();

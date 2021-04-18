@@ -3,6 +3,7 @@ package client;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -21,12 +22,18 @@ public class Client extends Thread{
 	
 	public static void main(String[] args) throws IOException, ClassNotFoundException 
 	{
-		socket = new Socket("localhost", 8189);
-		out = new ObjectOutputStream(Client.socket.getOutputStream());
-		in = new ObjectInputStream(Client.socket.getInputStream());
-		sc = new Scanner(System.in);
-		ThreadEnvoi threadLecture = new ThreadEnvoi();
-		threadLecture.start();
+		try
+		{
+			socket = new Socket("localhost", 8189);
+			out = new ObjectOutputStream(Client.socket.getOutputStream());
+			in = new ObjectInputStream(Client.socket.getInputStream());
+			sc = new Scanner(System.in);
+			ThreadEnvoi threadLecture = new ThreadEnvoi();
+			threadLecture.start();
+		} catch (ConnectException e) {
+			System.out.println("Serveur injoignable! ");
+		}
+		
 	}
 	
 }

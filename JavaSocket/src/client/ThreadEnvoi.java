@@ -1,11 +1,14 @@
 package client;
 
+import java.io.EOFException;
 import java.io.File;
 import java.io.IOException;
+import java.net.SocketException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.NoSuchElementException;
 
 import commun.Message;
 
@@ -14,17 +17,18 @@ public class ThreadEnvoi extends Thread{
 	@Override
 	public void run() 
 	{
+		ThreadReception threadReception = new ThreadReception();
+		
 		try 
 		{
 			System.out.print("Welcome ! Your name: ");
 			Client.nom = Client.sc.nextLine();
 			Client.out.writeObject(Client.nom);
 			System.out.println((String) Client.in.readObject());
+
+			threadReception.start();
 			
-			ThreadReception th = new ThreadReception();
-			th.start();
-			
-			while( ! interrupted())
+			while( ! interrupted() )
 			{	
 				System.out.print("Commande >>> $  ");
 				String cmd = Client.sc.nextLine();
@@ -69,7 +73,16 @@ public class ThreadEnvoi extends Thread{
 						
 					}
 					
-					Client.out.writeObject(Client.message);
+					try
+					{
+						Client.out.writeObject(Client.message);
+					} catch (SocketException e) {
+						Client.in.close();
+						System.out.println("Connection perdue !");
+						threadReception.interrupt(); // demande de fermeture du threadReception
+						break;
+					}
+					
 					System.out.println();
 					
 				} catch (IOException e) {
@@ -80,6 +93,13 @@ public class ThreadEnvoi extends Thread{
 					e.printStackTrace();
 				}
 			}
+		} catch (EOFException e) {
+			System.out.println("Connection perdue !");
+			ThreadReception.interrupted();
+			
+		} catch (NoSuchElementException e) {
+			// Clavier
+			
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();

@@ -10,25 +10,28 @@ public class ThreadReception extends Thread{
 	@Override
 	public void run() 
 	{
-		while(! Client.socket.isClosed())
+		while( ! interrupted() )
 		{			
 			Message sms;
+			ThreadTraitement threadTraitement = new ThreadTraitement();
 			try
 			{	
-				if(Client.socket.isClosed())
-					break;
-				else
-				{
 					sms = (Message) Client.in.readObject();
 					Client.recevesMessage.add(sms);
-					
-					ThreadTraitement threadTraitement = new ThreadTraitement();
 					threadTraitement.start();
-				}
 		
 			} catch (EOFException e) {
-			
-				e.printStackTrace();
+				
+				try {
+					Client.out.close();
+					Client.in.close();
+					threadTraitement.interrupt();
+					System.out.println("Le serveur est indisponible! ");
+					break;
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 			
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
