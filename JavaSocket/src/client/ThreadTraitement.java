@@ -21,7 +21,6 @@ public class ThreadTraitement extends Thread{
 				} catch (UnsupportedEncodingException e) {
 					System.out.println("\nSMS from"+sms.getSource()+": "+  new String(sms.getData()));
 				}
-			} else {
 			} else if( sms.getType().equals("fichier") )
 			{
 				File file = new File("file", sms.getNameFile());
