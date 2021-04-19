@@ -2,7 +2,6 @@ package serveur;
 
 import java.io.EOFException;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
@@ -21,67 +20,37 @@ public class ThreadClient  extends Thread {
 	public void run()
 	{
 		Compte compte=null;
-		ObjectInputStream in;
-		ObjectOutputStream out;
-		try {
+		try 
+		{
+			compte = ServeurMulti.nouveauCompte(socketServeur, this); // Création et configuration d'un compte
 			
-			compte = new Compte(socketServeur, this);
-			in = compte.getIn();
-			out = compte.getOut();
-			
-			String nameCli = (String) in.readObject();
-			
-			compte.setNom(nameCli);
-			
-			out.writeObject("\n******** Bienvenue "+ nameCli + " *********\n Protocole communication:\n\t\t text--> Message Texte\n\t\t fichier--> Image");
- 
-			ServeurMulti.comptes.add(compte);
-			
-			while( !interrupted() )
+			//*************************************************************************************
+			//*       		Début de comminication avec le client                          		 **
+			//*                                                                                  **
+			//*************************************************************************************
+			while( !interrupted() ) // Tantque le serveurMulti n'envoie pas de signal d'interruption
 			{			
 				Message sms;
 				try
-				{	
-					if(socketServeur.isClosed())
-						break;
-					else
-					{
-						sms = (Message) in.readObject();
-						System.out.println("Transfert en cours...");
-						
-						for ( String name : sms.getDestinataire())
+				{
+					sms = (Message) compte.getIn().readObject(); // Récupération du message
+					System.out.println("Transfert en cours...");
+					
+					for ( String name : sms.getDestinataire()) // Parcourt de la liste des destinataires dans le message
+					{ 
+						for( Compte cpt : ServeurMulti.comptes) // Parcourt de la liste des comptes
 						{
-							if(name.equals("group"))
+							if(name.equals(cpt.getNom())) // Si le compte est celui du destinataire
 							{
-								for( Compte cpt : ServeurMulti.comptes)
-								{
-									//System.out.println(name + " = " +cpt.getNom() +" : "+ name.equals(cpt.getNom()));
-									if(name.equals(cpt.getNom()))
-									{
-										ObjectOutputStream outp = cpt.getOut();
-										outp.writeObject(sms);
-										System.out.println(sms.getSource()+" Send to ---> "+ name);
-									}
-								}
-								break;
+								ObjectOutputStream outp = cpt.getOut(); // récupération de sont output
+								outp.writeObject(sms); // Transfert du sms
+								System.out.println(sms.getSource()+" Send to ---> "+ name); // Affiche dans l'interface du serveur Multi
 							}
-							else 
-								for( Compte cpt : ServeurMulti.comptes)
-								{
-									//System.out.println(name + " = " +cpt.getNom() +" : "+ name.equals(cpt.getNom()));
-									if(name.equals(cpt.getNom()))
-									{
-										ObjectOutputStream outp = cpt.getOut();
-										outp.writeObject(sms);
-										System.out.println(sms.getSource()+" Send to ---> "+ name);
-									}
-								}
 						}
 					}
-			
 				} catch (EOFException e) {
 				
-					e.printStackTrace();
+					break;
 				
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
@@ -91,28 +60,22 @@ public class ThreadClient  extends Thread {
 					e.printStackTrace();
 				}
 			}
-		} catch(EOFException e) {
-			
-			if(compte != null) ServeurMulti.comptes.remove(compte);
-			System.out.println("***** Alert : Client déconnecté ! ");
-			
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (ClassNotFoundException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		}catch (IOException | ClassNotFoundException e1) {
+			System.out.println("Un échec de configuration");
 		}
 		finally {
+			
 			try {
-				socketServeur.close();
-			} catch (IOException e) {
+				socketServeur.close(); // fermeture de ce socket
+				String nomClient= compte.getNom();
+				ServeurMulti.comptes.remove(compte); // Suppressions client dans la liste des comptes
+				
+				ServeurMulti.sendNotify("Déconnection",nomClient);  // Envoie de la notification vers tout les clients connectés
+				
+			} catch (IOException e1) {
 				// TODO Auto-generated catch block
-				e.printStackTrace();
+				e1.printStackTrace();
 			}
 		}
-		
-	
-		
 	}
 }

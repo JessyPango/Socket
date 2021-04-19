@@ -12,14 +12,18 @@ public class ThreadTraitement extends Thread{
 	@Override
 	public void run() 
 	{
+		//**************************************************************************************************
+		//                Traitement des messages et affichage                                             *
+		//**************************************************************************************************
 		Message  sms;
-		while( ! Client.recevesMessage.isEmpty() ) {
+		while( ! Client.recevesMessage.isEmpty() )  // Tant qu'il y'a un message stocké
+		{
 			sms = Client.recevesMessage.get(0);
 			if(sms.getType().equals("text") ) {
 				try {
 					System.out.println("\nSMS from "+sms.getSource()+"---> "+ new String(sms.getData(), sms.getEncodage()) );
 				} catch (UnsupportedEncodingException e) {
-					System.out.println("\nSMS from"+sms.getSource()+": "+  new String(sms.getData()));
+					System.out.println("\nSMS from"+sms.getSource()+"--> "+  new String(sms.getData()));
 				}
 			} else if( sms.getType().equals("fichier") )
 			{
@@ -42,6 +46,13 @@ public class ThreadTraitement extends Thread{
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+				}
+			} else if ( sms.getType().equals("notify") )
+			{
+				try {
+					System.out.println(new String(sms.getData(), sms.getEncodage()) );
+				} catch (UnsupportedEncodingException e) {
+					System.out.println("\nSMS from"+sms.getSource()+": "+  new String(sms.getData()));
 				}
 			}
 			Client.recevesMessage.remove(0);

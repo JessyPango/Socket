@@ -20,14 +20,38 @@ public class ThreadEnvoi extends Thread{
 		ThreadReception threadReception = new ThreadReception();
 		
 		try 
-		{
-			System.out.print("Welcome ! Your name: ");
-			Client.nom = Client.sc.nextLine();
-			Client.out.writeObject(Client.nom);
-			System.out.println((String) Client.in.readObject());
-
+		{	
+			//*************************************************************************************
+			//*       				Configuration avec le serveur                                **
+			//*                                                                                  **
+			//*************************************************************************************
+			
+			
+			System.out.println((String) Client.in.readObject()); // Premier message du serveur, Le NOM
+			while( true ) 
+			{
+				Client.nom = Client.sc.nextLine(); 
+				Client.out.writeObject( Client.nom ); // Evoie du nom au serveur
+				
+				String reponce = (String) Client.in.readObject();
+				//System.out.println(reponce);
+				if( reponce.equals("ErrorName") ) {
+					System.out.println("Serveur --> Nom existe déjà " );
+				} else {
+					System.out.println(reponce); // Reception du message bienvenue de serveur
+					break;
+				}
+			}
+			
+			System.out.println("Début de comminication avec le serveur");
+			//*******************************************************************************************
+			//*                      Lancement du thread pour la reception                              *
+			//*******************************************************************************************
 			threadReception.start();
 			
+			//*******************************************************************************************
+			//*                     			Début de l'envoie                                       *
+			//*******************************************************************************************
 			while( ! interrupted() )
 			{	
 				System.out.print("Commande >>> $  ");
@@ -95,7 +119,7 @@ public class ThreadEnvoi extends Thread{
 			}
 		} catch (EOFException e) {
 			System.out.println("Connection perdue !");
-			ThreadReception.interrupted();
+			threadReception.interrupted();
 			
 		} catch (NoSuchElementException e) {
 			// Clavier
