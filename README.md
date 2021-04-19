@@ -23,14 +23,8 @@ Ce programme nécessite:
 
 ### Installation
 
-Les étapes pour installer votre programme....
+Les étapes pour installation du programme....
 
-Dites ce qu'il faut faire...
-
-_exemple_: Executez la commande ``telnet mapscii.me`` pour commencer ensuite [...]
-
-
-Ensuite vous pouvez montrer ce que vous obtenez au final...
 
 ## Démarrage
 Pour excéter se programme , vous aurrez besoin :  
